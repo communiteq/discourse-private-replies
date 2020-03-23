@@ -62,10 +62,10 @@ after_initialize do
         userids = Group.find_by_name('staff').users.pluck(:id) 
         userids = userids + [ @guardian.user.id ] if @guardian.user
         
-        protected_cats = TopicCustomField.where(:name => 'private_replies').where(:value => true).pluck(:topic_id)
+        protected_topics = TopicCustomField.where(:name => 'private_replies').where(:value => true).pluck(:topic_id)
         
         @results.posts.delete_if do |post|
-          next false unless protected_cats.include? post.topic_id   # leave unprotected topics alone
+          next false unless protected_topics.include? post.topic_id # leave unprotected topics alone
           next false if userids.include? post.user_id               # show staff and own posts
           next false if post.user_id == post.topic.user_id          # show topic starter posts
           true
@@ -88,10 +88,10 @@ after_initialize do
         userids = userids + [ guardian.user.id ] if guardian.user
         userid_list = userids.join(',')
         
-        protected_cat_list = TopicCustomField.where(:name => 'private_replies').where(:value => true).pluck(:topic_id).join(',')
+        protected_topic_list = TopicCustomField.where(:name => 'private_replies').where(:value => true).pluck(:topic_id).join(',')
         
-        if !protected_cat_list.empty?
-          builder.where("( (a.target_topic_id not in (#{protected_cat_list})) OR (a.acting_user_id = t.user_id) OR (a.acting_user_id in (#{userid_list})) )")
+        if !protected_topic_list.empty?
+          builder.where("( (a.target_topic_id not in (#{protected_topic_list})) OR (a.acting_user_id = t.user_id) OR (a.acting_user_id in (#{userid_list})) )")
         end
       end
     end
