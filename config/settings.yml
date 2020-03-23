@@ -1,0 +1,5 @@
+plugins:
+  private_replies_enabled:
+    client: true
+    default: false
+
