@@ -23,7 +23,7 @@ after_initialize do
       return false unless allowed
 
       if SiteSetting.private_replies_enabled && post.topic.custom_fields.keys.include?('private_replies') && post.topic.custom_fields['private_replies']
-        userids = Group.find_by_name('staff').users.pluck(:id) + [ post.topic.user.id ]
+        userids = Group.find(Group::AUTO_GROUPS[:staff]).users.pluck(:id) + [ post.topic.user.id ]
         userids = userids + [ @user.id ] unless @user.anonymous?
         return false unless userids.include? post.user.id
       end
@@ -41,7 +41,7 @@ after_initialize do
       
       if SiteSetting.private_replies_enabled && @topic.custom_fields.keys.include?('private_replies') && @topic.custom_fields['private_replies']
         if !@user || @topic.user.id != @user.id    # Topic starter can see it all
-          userids = Group.find_by_name('staff').users.pluck(:id) + [ @topic.user.id ] 
+          userids = Group.find(Group::AUTO_GROUPS[:staff]).users.pluck(:id) + [ @topic.user.id ] 
           userids = userids + [ @user.id ] if @user
           result = result.where('posts.post_number = 1 OR posts.user_id IN (?)', userids)
         end
@@ -59,7 +59,7 @@ after_initialize do
       super
 
       if SiteSetting.private_replies_enabled
-        userids = Group.find_by_name('staff').users.pluck(:id) 
+        userids = Group.find(Group::AUTO_GROUPS[:staff]).users.pluck(:id) 
         userids = userids + [ @guardian.user.id ] if @guardian.user
         
         protected_topics = TopicCustomField.where(:name => 'private_replies').where(:value => true).pluck(:topic_id)
@@ -84,7 +84,7 @@ after_initialize do
       orig_apply_common_filters(builder, user_id, guardian, ignore_private_messages)
       
       if SiteSetting.private_replies_enabled
-        userids = Group.find_by_name('staff').users.pluck(:id) 
+        userids = Group.find(Group::AUTO_GROUPS[:staff]).users.pluck(:id) 
         userids = userids + [ guardian.user.id ] if guardian.user
         userid_list = userids.join(',')
         
