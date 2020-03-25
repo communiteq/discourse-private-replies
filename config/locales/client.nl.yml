@@ -1,0 +1,12 @@
+nl:
+  js:
+    private_replies:
+      topic_banner_line_1: "Alleen posts die gemaakt zijn door de topic-eigenaar, stafleden en jezelf zijn zichtbaar."
+      topic_banner_line_2: "Alleen de topic-eigenaar kan alle posts zien."
+      button:
+        public_replies: 
+          button: "Publieke-Posts"
+          help: "Maak alle posts in het topic zichtbaar voor iedereen"
+        private_replies: 
+          button: "Prive-Posts"
+          help: "Maak alle posts in het topic prive"
