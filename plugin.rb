@@ -52,7 +52,7 @@ after_initialize do
     # filter posts_by_ids does not seem to use unfiltered_posts ?! WHY...
     # so we need to filter that separately
     def filter_posts_by_ids(post_ids)
-      super(post_ids)
+      @posts = super(post_ids)
       if SiteSetting.private_replies_enabled && @topic.custom_fields.keys.include?('private_replies') && @topic.custom_fields['private_replies']
         if !@user || @topic.user.id != @user.id    # Topic starter can see it all
           userids = Group.find(Group::AUTO_GROUPS[:staff]).users.pluck(:id) + [ @topic.user.id ] 
@@ -60,6 +60,7 @@ after_initialize do
           @posts = @posts.where('(posts.post_number = 1 OR posts.user_id IN (?))', userids)
         end
       end
+      @posts
     end
   end
 
