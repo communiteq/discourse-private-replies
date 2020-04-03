@@ -2,6 +2,8 @@
 
 Provides a toggle to hide replies to a topic for everyone but the topic owner.
 
+Further discussion on Discourse Meta https://meta.discourse.org/t/discourse-private-replies/146712
+
 ## How to Install this Plugin
 
 To install Discourse Plugin - https://meta.discourse.org/t/install-a-plugin/19157
