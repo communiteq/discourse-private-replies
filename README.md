@@ -14,12 +14,16 @@ Then you can turn on the functionality of the plugin on a per-topic basis.
 
 If you are the topic-starter then you will see a new button at the bottom of the topic.
 
+![button](https://raw.githubusercontent.com/discoursehosting/discourse-private-replies/master/screenshots/button.png)
+
 By pressing this button you have enabled the Private Replies feature for this topic.
 
 A banner will appear above the topic and the following happens:
 
 - people will only be able to see posts made by themself, by the topic owner, and by staff.
 - only the topic owner will be able to see all posts.
+
+![banner](https://raw.githubusercontent.com/discoursehosting/discourse-private-replies/master/screenshots/banner.png)
 
 By pressing the button a second time, the topic will revert back to normal.
 
