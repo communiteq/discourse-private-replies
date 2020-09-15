@@ -67,7 +67,7 @@ after_initialize do
   # hide posts from search results
   module PatchSearch
   
-    def execute
+    def execute(readonly_mode)
       super
 
       if SiteSetting.private_replies_enabled
