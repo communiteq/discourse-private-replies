@@ -7,7 +7,6 @@ nb_NO:
         public_replies: 
           button: "Offentlige svar"
           help: "Sett alle svarene i dette emnet synlig for alle"
-         private svar"
         private_replies: 
           button: "Privat svar"
           help: "Gjør svarene i dette emnet kun synlig for eieren av emnet"
