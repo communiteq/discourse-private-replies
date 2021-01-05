@@ -1,0 +1,3 @@
+pl_PL:
+  site_settings:
+    private_replies_enabled: "Włącz wtyczkę Prywatne odpowiedzi."

@@ -1,0 +1,12 @@
+da:
+  js:
+    private_replies:
+      topic_banner_line_1: "Du kan kun se indlæg fra emneejeren, personalet og dig selv."
+      topic_banner_line_2: "Kun emneejeren kan se alle indlæg."
+      button:
+        public_replies: 
+          button: "Offentlige svar"
+          help: "Indstil alle svar i dette emne synligt for alle"
+        private_replies: 
+          button: "Private svar"
+          help: "Gør svar i dette emne kun synligt for emneejeren"
