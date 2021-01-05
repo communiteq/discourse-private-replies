@@ -1,0 +1,12 @@
+de:
+  js:
+    private_replies:
+      topic_banner_line_1: "Sie können nur Beiträge sehen, die vom Themeninhaber, den Mitarbeitern und Ihnen selbst verfasst wurden."
+      topic_banner_line_2: "Nur der Themenbesitzer kann alle Beiträge sehen."
+      button:
+        public_replies: 
+          button: "Öffentliche Antworten"
+          help: "Alle Antworten in diesem Thema für alle sichtbar machen"
+        private_replies: 
+          button: "Private Antworten"
+          help: "Antworten in diesem Thema nur für den Themeninhaber sichtbar machen"
