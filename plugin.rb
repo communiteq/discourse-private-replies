@@ -1,8 +1,8 @@
 # name: discourse-private-replies
-# about: DiscourseHosting private replies plugin
-# version: 0.1
-# authors: richard@discoursehosting.com
-# url: https://www.discoursehosting.com/
+# about: Communiteq private replies plugin
+# version: 1.1
+# authors: richard@communiteq.com
+# url: https://www.communiteq.com/discoursehosting/kb/discourse-private-replies-plugin
 
 enabled_site_setting :private_replies_enabled
 
@@ -89,24 +89,24 @@ after_initialize do
   end
 
   # hide posts from user profile -> activity
-  ::UserAction.class_eval do
-    singleton_class.send(:alias_method, :orig_apply_common_filters, :apply_common_filters)
-    
-    def self.apply_common_filters(builder, user_id, guardian, ignore_private_messages = false)
-      orig_apply_common_filters(builder, user_id, guardian, ignore_private_messages)
-      
-      if SiteSetting.private_replies_enabled
-        userids = Group.find(Group::AUTO_GROUPS[:staff]).users.pluck(:id) 
-        userids = userids + [ guardian.user.id ] if guardian.user
-        userid_list = userids.join(',')
+  class ::UserAction
+    module PrivateRepliesApplyCommonFilters
+      def apply_common_filters(builder, user_id, guardian, ignore_private_messages=false)
+        if SiteSetting.private_replies_enabled
+          userids = Group.find(Group::AUTO_GROUPS[:staff]).users.pluck(:id) 
+          userids = userids + [ guardian.user.id ] if guardian.user
+          userid_list = userids.join(',')
         
-        protected_topic_list = TopicCustomField.where(:name => 'private_replies').where(:value => true).pluck(:topic_id).join(',')
+          protected_topic_list = TopicCustomField.where(:name => 'private_replies').where(:value => true).pluck(:topic_id).join(',')
         
-        if !protected_topic_list.empty?
-          builder.where("( (a.target_topic_id not in (#{protected_topic_list})) OR (a.acting_user_id = t.user_id) OR (a.acting_user_id in (#{userid_list})) )")
+          if !protected_topic_list.empty?
+            builder.where("( (a.target_topic_id not in (#{protected_topic_list})) OR (a.acting_user_id = t.user_id) OR (a.acting_user_id in (#{userid_list})) )")
+          end
         end
+        super(builder, user_id, guardian, ignore_private_messages)
       end
     end
+    singleton_class.prepend PrivateRepliesApplyCommonFilters
   end
 
   class ::TopicView
