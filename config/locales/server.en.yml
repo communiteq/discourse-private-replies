@@ -1,3 +1,5 @@
 en:
   site_settings:
     private_replies_enabled: "Enable the Private Replies plugin."
+    private_replies_min_trust_level_to_see_all: "Minimum trust level required to see all private posts (-1 to disable)."
+    private_replies_topic_starter_primary_group_can_see_all: "Whether the topic starter's primary group members can see all private posts"

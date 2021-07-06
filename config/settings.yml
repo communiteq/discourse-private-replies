@@ -2,4 +2,9 @@ plugins:
   private_replies_enabled:
     client: true
     default: false
-
+  private_replies_min_trust_level_to_see_all:
+    default: -1
+    min: -1
+    max: 4
+  private_replies_topic_starter_primary_group_can_see_all:
+    default: false
