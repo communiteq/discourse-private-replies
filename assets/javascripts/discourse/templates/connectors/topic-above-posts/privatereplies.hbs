@@ -4,7 +4,19 @@
     {{d-icon 'user-secret'}}
     <div>
       <p>{{i18n 'private_replies.topic_banner_line_1'}}</p>
-      <p>{{i18n 'private_replies.topic_banner_line_2'}}</p>
+      {{#if (eq siteSettings.private_replies_min_trust_level_to_see_all -1)}}
+        {{#if (eq siteSettings.private_replies_topic_starter_primary_group_can_see_all true)}}
+          <p>{{i18n 'private_replies.topic_banner_line_2_also_group'}}</p>
+        {{else}}
+          <p>{{i18n 'private_replies.topic_banner_line_2'}}</p>
+        {{/if}}
+      {{else}}
+        {{#if (eq siteSettings.private_replies_topic_starter_primary_group_can_see_all true)}}
+          <p>{{i18n 'private_replies.topic_banner_line_2_also_trusted_group'}}</p>
+        {{else}}
+          <p>{{i18n 'private_replies.topic_banner_line_2_also_trusted'}}</p>
+        {{/if}}
+      {{/if}}
     </div>
   </div>
 </div>

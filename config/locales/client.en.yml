@@ -3,6 +3,9 @@ en:
     private_replies:
       topic_banner_line_1: "You can only see posts made by the topic owner, staff and yourself."
       topic_banner_line_2: "Only the topic owner can see all posts."
+      topic_banner_line_2_also_trusted: "Only the topic owner and trusted users can see all posts."
+      topic_banner_line_2_also_group: "Only the topic owner and their primary group can see all posts."
+      topic_banner_line_2_also_trusted_group: "Only the topic owner, their primary group and trusted users can see all posts."
       button:
         public_replies: 
           button: "Public Replies"
