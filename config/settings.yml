@@ -2,4 +2,10 @@ plugins:
   private_replies_enabled:
     client: true
     default: false
-
+  private_replies_min_trust_level_to_see_all:
+    client: true
+    default: 4
+    enum: "TrustLevelSetting"
+  private_replies_topic_starter_primary_group_can_see_all:
+    client: true
+    default: false

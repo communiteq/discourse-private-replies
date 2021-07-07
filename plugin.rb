@@ -10,6 +10,33 @@ register_svg_icon "user-secret" if respond_to?(:register_svg_icon)
 
 load File.expand_path('../lib/discourse_private_replies/engine.rb', __FILE__)
 
+module ::DiscoursePrivateReplies
+  def DiscoursePrivateReplies.can_see_all_posts?(user, topic)
+    return false if user.anonymous? # anonymous users don't have the id method
+
+    return true if topic && user.id == topic.user.id
+
+    min_trust_level = SiteSetting.private_replies_min_trust_level_to_see_all
+    if min_trust_level >= 0
+      return true if user.has_trust_level?(TrustLevel[min_trust_level])
+    end
+
+    if SiteSetting.private_replies_topic_starter_primary_group_can_see_all && topic
+      groupids = Group.find(topic.user.primary_group_id).users.pluck(:id) if topic.user && !topic.user.anonymous?
+      return true if groupids.include? user.id
+    end
+
+    false
+  end
+
+  def DiscoursePrivateReplies.can_see_post_if_author_among(user, topic)
+    userids = Group.find(Group::AUTO_GROUPS[:staff]).users.pluck(:id)
+    userids = userids + [ topic.user.id ] if topic
+    userids = userids + [ user.id ] if user && !user.anonymous? # anonymous users don't have the id method
+    return userids
+  end
+end
+
 after_initialize do
   
   # hide posts from the /raw/tid/pid route
@@ -23,8 +50,9 @@ after_initialize do
       return false unless allowed
 
       if SiteSetting.private_replies_enabled && post.topic.custom_fields.keys.include?('private_replies') && post.topic.custom_fields['private_replies']
-        userids = Group.find(Group::AUTO_GROUPS[:staff]).users.pluck(:id) + [ post.topic.user.id ]
-        userids = userids + [ @user.id ] unless @user.anonymous?
+        return true if DiscoursePrivateReplies.can_see_all_posts?(@user, post.topic)
+        
+        userids = DiscoursePrivateReplies.can_see_post_if_author_among(@user, post.topic)
         return false unless userids.include? post.user.id
       end
       
@@ -40,9 +68,8 @@ after_initialize do
       result = super
       
       if SiteSetting.private_replies_enabled && @topic.custom_fields.keys.include?('private_replies') && @topic.custom_fields['private_replies']
-        if !@user || @topic.user.id != @user.id    # Topic starter can see it all
-          userids = Group.find(Group::AUTO_GROUPS[:staff]).users.pluck(:id) + [ @topic.user.id ] 
-          userids = userids + [ @user.id ] if @user
+        if !@user || !DiscoursePrivateReplies.can_see_all_posts?(@user, @topic)
+          userids = DiscoursePrivateReplies.can_see_post_if_author_among(@user, @topic)
           result = result.where('(posts.post_number = 1 OR posts.user_id IN (?))', userids)
         end
       end
@@ -54,9 +81,8 @@ after_initialize do
     def filter_posts_by_ids(post_ids)
       @posts = super(post_ids)
       if SiteSetting.private_replies_enabled && @topic.custom_fields.keys.include?('private_replies') && @topic.custom_fields['private_replies']
-        if !@user || @topic.user.id != @user.id    # Topic starter can see it all
-          userids = Group.find(Group::AUTO_GROUPS[:staff]).users.pluck(:id) + [ @topic.user.id ] 
-          userids = userids + [ @user.id ] if @user
+        if !@user || !DiscoursePrivateReplies.can_see_all_posts?(@user, @topic)
+          userids = DiscoursePrivateReplies.can_see_post_if_author_among(@user, @topic)
           @posts = @posts.where('(posts.post_number = 1 OR posts.user_id IN (?))', userids)
         end
       end
@@ -70,9 +96,8 @@ after_initialize do
     def execute(readonly_mode)
       super
 
-      if SiteSetting.private_replies_enabled
-        userids = Group.find(Group::AUTO_GROUPS[:staff]).users.pluck(:id) 
-        userids = userids + [ @guardian.user.id ] if @guardian.user
+      if SiteSetting.private_replies_enabled && !DiscoursePrivateReplies.can_see_all_posts?(@guardian.user, nil)
+        userids = DiscoursePrivateReplies.can_see_post_if_author_among(@guardian.user, nil)
         
         protected_topics = TopicCustomField.where(:name => 'private_replies').where(:value => true).pluck(:topic_id)
         
@@ -92,9 +117,8 @@ after_initialize do
   class ::UserAction
     module PrivateRepliesApplyCommonFilters
       def apply_common_filters(builder, user_id, guardian, ignore_private_messages=false)
-        if SiteSetting.private_replies_enabled
-          userids = Group.find(Group::AUTO_GROUPS[:staff]).users.pluck(:id) 
-          userids = userids + [ guardian.user.id ] if guardian.user
+        if SiteSetting.private_replies_enabled && !DiscoursePrivateReplies.can_see_all_posts?(guardian.user, nil)
+          userids = DiscoursePrivateReplies.can_see_post_if_author_among(guardian.user, nil)
           userid_list = userids.join(',')
         
           protected_topic_list = TopicCustomField.where(:name => 'private_replies').where(:value => true).pluck(:topic_id).join(',')
