@@ -4,9 +4,9 @@ fr:
       topic_banner_line_1: "Vous ne pouvez voir que les messages publiés par le propriétaire du sujet, le personnel et vous-même."
       topic_banner_line_2: "Seul le propriétaire du sujet peut voir tous les messages."
       button:
-        public_replies: 
-          button: "Réponses publiques"
+        public_replies:
+          button: "Répondre en public"
           help: "Définir toutes les réponses de ce sujet visibles par tous"
-        private_replies: 
-          button: "Réponses privées"
+        private_replies:
+          button: "Répondre en privé"
           help: "Rendre les réponses à ce sujet visibles uniquement par le propriétaire du sujet"
