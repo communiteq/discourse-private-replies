@@ -1,6 +1,6 @@
 # name: discourse-private-replies
 # about: Communiteq private replies plugin
-# version: 1.1
+# version: 1.2
 # authors: richard@communiteq.com
 # url: https://www.communiteq.com/discoursehosting/kb/discourse-private-replies-plugin
 
@@ -92,8 +92,7 @@ after_initialize do
 
   # hide posts from search results
   module PatchSearch
-  
-    def execute(readonly_mode)
+    def execute(readonly_mode: @readonly_mode)
       super
 
       if SiteSetting.private_replies_enabled && !DiscoursePrivateReplies.can_see_all_posts?(@guardian.user, nil)
