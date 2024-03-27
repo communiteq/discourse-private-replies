@@ -1,6 +1,6 @@
 # name: discourse-private-replies
 # about: Communiteq private replies plugin
-# version: 1.2
+# version: 1.3
 # authors: richard@communiteq.com
 # url: https://www.communiteq.com/discoursehosting/kb/discourse-private-replies-plugin
 
@@ -38,24 +38,24 @@ module ::DiscoursePrivateReplies
 end
 
 after_initialize do
-  
+
   # hide posts from the /raw/tid/pid route
   module ::PostGuardian
     alias_method :org_can_see_post?, :can_see_post?
 
     def can_see_post?(post)
-      return true if is_admin? 
+      return true if is_admin?
 
       allowed = org_can_see_post?(post)
       return false unless allowed
 
       if SiteSetting.private_replies_enabled && post.topic.custom_fields.keys.include?('private_replies') && post.topic.custom_fields['private_replies']
         return true if DiscoursePrivateReplies.can_see_all_posts?(@user, post.topic)
-        
+
         userids = DiscoursePrivateReplies.can_see_post_if_author_among(@user, post.topic)
         return false unless userids.include? post.user.id
       end
-      
+
       true
     end
   end
@@ -66,7 +66,7 @@ after_initialize do
     # hide posts at the lowest level
     def unfiltered_posts
       result = super
-      
+
       if SiteSetting.private_replies_enabled && @topic.custom_fields.keys.include?('private_replies') && @topic.custom_fields['private_replies']
         if !@user || !DiscoursePrivateReplies.can_see_all_posts?(@user, @topic)
           userids = DiscoursePrivateReplies.can_see_post_if_author_among(@user, @topic)
@@ -97,9 +97,9 @@ after_initialize do
 
       if SiteSetting.private_replies_enabled && !DiscoursePrivateReplies.can_see_all_posts?(@guardian.user, nil)
         userids = DiscoursePrivateReplies.can_see_post_if_author_among(@guardian.user, nil)
-        
+
         protected_topics = TopicCustomField.where(:name => 'private_replies').where(:value => true).pluck(:topic_id)
-        
+
         @results.posts.delete_if do |post|
           next false unless protected_topics.include? post.topic_id # leave unprotected topics alone
           next false if userids.include? post.user_id               # show staff and own posts
@@ -107,7 +107,7 @@ after_initialize do
           true
         end
       end
-      
+
       @results
     end
   end
@@ -119,9 +119,9 @@ after_initialize do
         if SiteSetting.private_replies_enabled && !DiscoursePrivateReplies.can_see_all_posts?(guardian.user, nil)
           userids = DiscoursePrivateReplies.can_see_post_if_author_among(guardian.user, nil)
           userid_list = userids.join(',')
-        
+
           protected_topic_list = TopicCustomField.where(:name => 'private_replies').where(:value => true).pluck(:topic_id).join(',')
-        
+
           if !protected_topic_list.empty?
             builder.where("( (a.target_topic_id not in (#{protected_topic_list})) OR (a.acting_user_id = t.user_id) OR (a.acting_user_id in (#{userid_list})) )")
           end
@@ -142,12 +142,20 @@ after_initialize do
 
   Topic.register_custom_field_type('private_replies', :boolean)
   add_to_serializer :topic_view, :private_replies do
-    object.topic.custom_fields['private_replies'] 
+    object.topic.custom_fields['private_replies']
   end
-   
+
   Discourse::Application.routes.append do
     mount ::DiscoursePrivateReplies::Engine, at: "/private_replies"
   end
 
+  DiscourseEvent.on(:topic_created) do |topic|
+    if topic&.category&.custom_fields['private_replies_default_enabled']
+      topic.custom_fields['private_replies'] = true
+      topic.save_custom_fields
+    end
+  end
+
+  Site.preloaded_category_custom_fields << 'private_replies_default_enabled'
 end
 

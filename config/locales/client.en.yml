@@ -1,13 +1,16 @@
 en:
   js:
     private_replies:
+      title: "Private Replies"
+      category_default_enabled: "Private Replies are default for this category"
+      category_default_subtext: "Changing this setting will be for newly created topics only and will not be applied to existing topics."
       topic_banner_line_1: "You can only see posts made by the topic owner, staff and yourself."
       topic_banner_line_2: "Only the topic owner and trusted users can see all posts."
       topic_banner_line_2_also_group: "Only the topic owner, their primary group and trusted users can see all posts."
       button:
-        public_replies: 
+        public_replies:
           button: "Public Replies"
           help: "Set all replies in this topic visible to everyone"
-        private_replies: 
+        private_replies:
           button: "Private Replies"
           help: "Make replies in this topic visible to topic owner only"
