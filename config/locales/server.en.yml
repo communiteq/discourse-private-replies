@@ -1,5 +1,6 @@
 en:
   site_settings:
     private_replies_enabled: "Enable the Private Replies plugin."
+    private_replies_on_selected_categories_only: "Enable Private Replies only via Category - Security. If disabled, Private Replies can be used in all categories."
     private_replies_min_trust_level_to_see_all: "Minimum trust level required to see all private posts."
     private_replies_topic_starter_primary_group_can_see_all: "Whether the topic starter's primary group members can see all private posts"

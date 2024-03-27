@@ -150,12 +150,17 @@ after_initialize do
   end
 
   DiscourseEvent.on(:topic_created) do |topic|
-    if topic&.category&.custom_fields['private_replies_default_enabled']
-      topic.custom_fields['private_replies'] = true
-      topic.save_custom_fields
+    if SiteSetting.private_replies_enabled
+      if (SiteSetting.private_replies_on_selected_categories_only == false) || (topic&.category&.custom_fields['private_replies_enabled'])
+        if topic&.category&.custom_fields['private_replies_default_enabled']
+          topic.custom_fields['private_replies'] = true
+          topic.save_custom_fields
+        end
+      end
     end
   end
 
   Site.preloaded_category_custom_fields << 'private_replies_default_enabled'
+  Site.preloaded_category_custom_fields << 'private_replies_enabled'
 end
 

@@ -2,6 +2,9 @@ plugins:
   private_replies_enabled:
     client: true
     default: false
+  private_replies_on_selected_categories_only:
+    client: true
+    default: false
   private_replies_min_trust_level_to_see_all:
     client: true
     default: 4

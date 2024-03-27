@@ -2,7 +2,8 @@ en:
   js:
     private_replies:
       title: "Private Replies"
-      category_default_enabled: "Private Replies are default for this category"
+      private_replies_enabled: "Enable the Private Replies option for topics in this category"
+      category_default_enabled: "Topics in this category will have Private Replies enabled by default."
       category_default_subtext: "Changing this setting will be for newly created topics only and will not be applied to existing topics."
       topic_banner_line_1: "You can only see posts made by the topic owner, staff and yourself."
       topic_banner_line_2: "Only the topic owner and trusted users can see all posts."
