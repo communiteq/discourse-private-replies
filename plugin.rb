@@ -1,6 +1,6 @@
 # name: discourse-private-replies
 # about: Communiteq private replies plugin
-# version: 1.3
+# version: 1.3.1
 # authors: richard@communiteq.com
 # url: https://www.communiteq.com/discoursehosting/kb/discourse-private-replies-plugin
 
