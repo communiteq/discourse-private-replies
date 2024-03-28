@@ -151,8 +151,8 @@ after_initialize do
 
   DiscourseEvent.on(:topic_created) do |topic|
     if SiteSetting.private_replies_enabled
-      if (SiteSetting.private_replies_on_selected_categories_only == false) || (topic&.category&.custom_fields['private_replies_enabled'])
-        if topic&.category&.custom_fields['private_replies_default_enabled']
+      if (SiteSetting.private_replies_on_selected_categories_only == false) || (topic&.category&.custom_fields&.dig('private_replies_enabled'))
+        if topic&.category&.custom_fields&.dig('private_replies_default_enabled')
           topic.custom_fields['private_replies'] = true
           topic.save_custom_fields
         end
