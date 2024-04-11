@@ -50,7 +50,7 @@ function registerTopicFooterButtons(api, container, siteSettings) {
     displayed() {
       const topic_owner_id = this.get("topic.user_id");
       var topic = this.get("topic");
-      if ((siteSettings.private_replies_on_selected_categories_only == false) || (topic?.category?.custom_fields.private_replies_enabled)) {
+      if ((siteSettings.private_replies_on_selected_categories_only == false) || (topic?.category?.custom_fields?.private_replies_enabled)) {
         return this.currentUser && ((this.currentUser.id == topic_owner_id) || this.currentUser.staff);
       }
       return false;
