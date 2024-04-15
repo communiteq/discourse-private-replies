@@ -1,6 +1,6 @@
 # name: discourse-private-replies
 # about: Communiteq private replies plugin
-# version: 1.3.4
+# version: 1.3.5
 # authors: Communiteq
 # url: https://www.communiteq.com/discoursehosting/kb/discourse-private-replies-plugin
 # meta_topic_id: 146712
@@ -102,6 +102,18 @@ after_initialize do
     end
   end
 
+  module PatchTopicViewDetailsSerializer
+    def last_poster
+      if SiteSetting.private_replies_enabled && object.topic.custom_fields.keys.include?('private_replies') && object.topic.custom_fields['private_replies']
+        if !scope.user || !DiscoursePrivateReplies.can_see_all_posts?(scope.user, object.topic)
+          userids = DiscoursePrivateReplies.can_see_post_if_author_among(scope.user, object.topic)
+          return object.topic.user unless !userids.include? object.topic.last_poster
+        end
+      end
+      object.topic.last_poster
+    end
+  end
+
   module PatchTopicPostersSummary
     def initialize(topic, options = {})
       super
@@ -169,6 +181,10 @@ after_initialize do
 
   class ::TopicPostersSummary
     prepend PatchTopicPostersSummary
+  end
+
+  class ::TopicViewDetailsSerializer
+    prepend PatchTopicViewDetailsSerializer
   end
 
   class ::Search
