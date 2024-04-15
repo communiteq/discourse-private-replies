@@ -1,6 +1,6 @@
 # name: discourse-private-replies
 # about: Communiteq private replies plugin
-# version: 1.3.3
+# version: 1.3.4
 # authors: Communiteq
 # url: https://www.communiteq.com/discoursehosting/kb/discourse-private-replies-plugin
 # meta_topic_id: 146712
@@ -64,6 +64,17 @@ after_initialize do
   # hide posts from the regular topic stream
   module PatchTopicView
 
+    def participants
+      result = super
+      if SiteSetting.private_replies_enabled && @topic.custom_fields.keys.include?('private_replies') && @topic.custom_fields['private_replies']
+        if !@user || !DiscoursePrivateReplies.can_see_all_posts?(@user, @topic)
+          userids = DiscoursePrivateReplies.can_see_post_if_author_among(@user, @topic)
+          result.select! { |key, _| userids.include?(key) }
+        end
+      end
+      result
+    end
+
     # hide posts at the lowest level
     def unfiltered_posts
       result = super
@@ -88,6 +99,25 @@ after_initialize do
         end
       end
       @posts
+    end
+  end
+
+  module PatchTopicPostersSummary
+    def initialize(topic, options = {})
+      super
+      if SiteSetting.private_replies_enabled && @topic.custom_fields.keys.include?('private_replies') && @topic.custom_fields['private_replies']
+        @filter_userids = DiscoursePrivateReplies.can_see_post_if_author_among(@user, @topic)
+      else
+        @filter_userids = nil
+      end
+    end
+
+    def summary
+      result = super
+      if @filter_userids
+        result.select! { |v| @filter_userids.include?(v.user.id) }
+      end
+      result
     end
   end
 
@@ -135,6 +165,10 @@ after_initialize do
 
   class ::TopicView
     prepend PatchTopicView
+  end
+
+  class ::TopicPostersSummary
+    prepend PatchTopicPostersSummary
   end
 
   class ::Search
