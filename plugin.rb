@@ -1,6 +1,6 @@
 # name: discourse-private-replies
 # about: Communiteq private replies plugin
-# version: 1.4
+# version: 1.4.1
 # authors: Communiteq
 # url: https://www.communiteq.com/discoursehosting/kb/discourse-private-replies-plugin
 # meta_topic_id: 146712
@@ -189,7 +189,8 @@ after_initialize do
       # @TODO this does not implement private_replies_topic_starter_primary_group_can_see_all
       def for_digest(user, since, opts = nil)
         topics = original_for_digest(user, since, opts)
-        if SiteSetting.private_replies_enabled && !DiscoursePrivateReplies.can_see_all_posts?(user, nil)
+        # check if we are actually joining on posts, we are for MLM summary but we are not for digest
+        if SiteSetting.private_replies_enabled && !DiscoursePrivateReplies.can_see_all_posts?(user, nil) && topics.to_sql.include?('INNER JOIN "posts"')
           userid_list = DiscoursePrivateReplies.can_see_post_if_author_among(user, nil).join(',')
           protected_topic_list = TopicCustomField.where(:name => 'private_replies').where(:value => true).pluck(:topic_id).join(',')
           topics = topics.where("(topics.id NOT IN (#{protected_topic_list}) OR posts.post_number = 1 OR topics.user_id = #{user.id} OR posts.user_id IN (#{userid_list}))")
