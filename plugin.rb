@@ -1,6 +1,6 @@
 # name: discourse-private-replies
 # about: Communiteq private replies plugin
-# version: 1.3.5
+# version: 1.3.6
 # authors: Communiteq
 # url: https://www.communiteq.com/discoursehosting/kb/discourse-private-replies-plugin
 # meta_topic_id: 146712
@@ -173,6 +173,24 @@ after_initialize do
       end
     end
     singleton_class.prepend PrivateRepliesApplyCommonFilters
+  end
+
+  # hide posts from digest and mlm-summary
+  class ::Topic
+    class << self
+      alias_method :original_for_digest, :for_digest
+
+      # either the topic is unprotected, or it is the first post number, or it is the user's own topic, or the users posts can be seen
+      def for_digest(user, since, opts = nil)
+        topics = original_for_digest(user, since, opts)
+        if SiteSetting.private_replies_enabled && !DiscoursePrivateReplies.can_see_all_posts?(user, nil)
+          userid_list = DiscoursePrivateReplies.can_see_post_if_author_among(user, nil).join(',')
+          protected_topic_list = TopicCustomField.where(:name => 'private_replies').where(:value => true).pluck(:topic_id).join(',')
+          topics = topics.where("(topics.id NOT IN (#{protected_topic_list}) OR posts.post_number = 1 OR topics.user_id = #{user.id} OR posts.user_id IN (#{userid_list}))")
+        end
+        topics
+      end
+    end
   end
 
   class ::TopicView
