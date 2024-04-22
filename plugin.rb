@@ -1,6 +1,6 @@
 # name: discourse-private-replies
 # about: Communiteq private replies plugin
-# version: 1.3.6
+# version: 1.4
 # authors: Communiteq
 # url: https://www.communiteq.com/discoursehosting/kb/discourse-private-replies-plugin
 # meta_topic_id: 146712
@@ -18,9 +18,11 @@ module ::DiscoursePrivateReplies
     return true if topic && user.id == topic.user.id
 
     min_trust_level = SiteSetting.private_replies_min_trust_level_to_see_all
-    if min_trust_level >= 0
+    if (min_trust_level >= 0) && (min_trust_level < 5)
       return true if user.has_trust_level?(TrustLevel[min_trust_level])
     end
+
+    return true if (SiteSetting.private_replies_groups_can_see_all.split('|').map(&:to_i) & user.groups.pluck(:id)).count > 0
 
     if SiteSetting.private_replies_topic_starter_primary_group_can_see_all && topic
       groupids = Group.find(topic.user.primary_group_id).users.pluck(:id) if topic.user && !topic.user.anonymous?
@@ -31,10 +33,13 @@ module ::DiscoursePrivateReplies
   end
 
   def DiscoursePrivateReplies.can_see_post_if_author_among(user, topic)
-    userids = Group.find(Group::AUTO_GROUPS[:staff]).users.pluck(:id)
+    userids = []
+    Group.where("id in (?)", SiteSetting.private_replies_see_all_from_groups.split('|')).each do |g|
+      userids += g.users.pluck(:id)
+    end
     userids = userids + [ topic.user.id ] if topic
     userids = userids + [ user.id ] if user && !user.anonymous? # anonymous users don't have the id method
-    return userids
+    return userids.uniq
   end
 end
 
@@ -181,6 +186,7 @@ after_initialize do
       alias_method :original_for_digest, :for_digest
 
       # either the topic is unprotected, or it is the first post number, or it is the user's own topic, or the users posts can be seen
+      # @TODO this does not implement private_replies_topic_starter_primary_group_can_see_all
       def for_digest(user, since, opts = nil)
         topics = original_for_digest(user, since, opts)
         if SiteSetting.private_replies_enabled && !DiscoursePrivateReplies.can_see_all_posts?(user, nil)

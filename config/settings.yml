@@ -6,9 +6,18 @@ plugins:
     client: true
     default: false
   private_replies_min_trust_level_to_see_all:
-    client: true
+    client: false
     default: 4
-    enum: "TrustLevelSetting"
+    min: 0
+    max: 5
+  private_replies_groups_can_see_all:
+    client: false
+    default: "3"
+    type: group_list
+  private_replies_see_all_from_groups:
+    client: false
+    default: "3"
+    type: group_list
   private_replies_topic_starter_primary_group_can_see_all:
     client: true
     default: false
