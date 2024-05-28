@@ -1,6 +1,6 @@
 # name: discourse-private-replies
 # about: Communiteq private replies plugin
-# version: 1.4.1
+# version: 1.4.2
 # authors: Communiteq
 # url: https://www.communiteq.com/discoursehosting/kb/discourse-private-replies-plugin
 # meta_topic_id: 146712
@@ -13,7 +13,7 @@ load File.expand_path('../lib/discourse_private_replies/engine.rb', __FILE__)
 
 module ::DiscoursePrivateReplies
   def DiscoursePrivateReplies.can_see_all_posts?(user, topic)
-    return false if user.anonymous? # anonymous users don't have the id method
+    return false if user.nil? || user.anonymous? # anonymous users don't have the id method
 
     return true if topic && user.id == topic.user.id
 
