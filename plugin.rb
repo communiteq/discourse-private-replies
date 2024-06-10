@@ -1,6 +1,6 @@
 # name: discourse-private-replies
 # about: Communiteq private replies plugin
-# version: 1.4.2
+# version: 1.4.3
 # authors: Communiteq
 # url: https://www.communiteq.com/discoursehosting/kb/discourse-private-replies-plugin
 # meta_topic_id: 146712
@@ -183,12 +183,12 @@ after_initialize do
   # hide posts from digest and mlm-summary
   class ::Topic
     class << self
-      alias_method :original_for_digest, :for_digest
+      alias_method :original_for_digest_private_replies, :for_digest
 
       # either the topic is unprotected, or it is the first post number, or it is the user's own topic, or the users posts can be seen
       # @TODO this does not implement private_replies_topic_starter_primary_group_can_see_all
       def for_digest(user, since, opts = nil)
-        topics = original_for_digest(user, since, opts)
+        topics = original_for_digest_private_replies(user, since, opts)
         # check if we are actually joining on posts, we are for MLM summary but we are not for digest
         if SiteSetting.private_replies_enabled && !DiscoursePrivateReplies.can_see_all_posts?(user, nil) && topics.to_sql.include?('INNER JOIN "posts"')
           userid_list = DiscoursePrivateReplies.can_see_post_if_author_among(user, nil).join(',')
