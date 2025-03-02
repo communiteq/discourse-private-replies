@@ -1,6 +1,6 @@
 # name: discourse-private-replies
 # about: Communiteq private replies plugin
-# version: 1.4.3
+# version: 1.5
 # authors: Communiteq
 # url: https://www.communiteq.com/discoursehosting/kb/discourse-private-replies-plugin
 # meta_topic_id: 146712
@@ -15,15 +15,22 @@ module ::DiscoursePrivateReplies
   def DiscoursePrivateReplies.can_see_all_posts?(user, topic)
     return false if user.nil? || user.anonymous? # anonymous users don't have the id method
 
+    # topic owner can see all
     return true if topic && user.id == topic.user.id
 
+    # topic participants can see all
+    return true if SiteSetting.private_replies_participants_can_see_all && Post.where(topic_id: topic.id, user_id: user.id).count > 0
+
+    # specific trust level can see all
     min_trust_level = SiteSetting.private_replies_min_trust_level_to_see_all
     if (min_trust_level >= 0) && (min_trust_level < 5)
       return true if user.has_trust_level?(TrustLevel[min_trust_level])
     end
 
+    # specific groups can see all
     return true if (SiteSetting.private_replies_groups_can_see_all.split('|').map(&:to_i) & user.groups.pluck(:id)).count > 0
 
+    # same primary group as topic owner can see all
     if SiteSetting.private_replies_topic_starter_primary_group_can_see_all && topic
       groupids = Group.find(topic.user.primary_group_id).users.pluck(:id) if topic.user && !topic.user.anonymous?
       return true if groupids.include? user.id
@@ -217,8 +224,12 @@ after_initialize do
   end
 
   Topic.register_custom_field_type('private_replies', :boolean)
-  add_to_serializer :topic_view, :private_replies do
-    object.topic.custom_fields['private_replies']
+  add_to_serializer(:topic_view, :private_replies) do
+    !!(object.topic.custom_fields['private_replies'])
+  end
+
+  add_to_serializer(:topic_view, :private_replies_limited, include_condition: -> { object.topic.custom_fields['private_replies'] }) do
+    !(DiscoursePrivateReplies.can_see_all_posts?(scope&.user, object.topic))
   end
 
   Discourse::Application.routes.append do

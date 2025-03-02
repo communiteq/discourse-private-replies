@@ -10,6 +10,9 @@ plugins:
     default: 4
     min: 0
     max: 5
+  private_replies_participants_can_see_all:
+    client: true
+    default: false
   private_replies_groups_can_see_all:
     client: false
     default: "3"
