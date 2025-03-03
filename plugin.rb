@@ -1,6 +1,6 @@
 # name: discourse-private-replies
 # about: Communiteq private replies plugin
-# version: 1.5
+# version: 1.5.1
 # authors: Communiteq
 # url: https://www.communiteq.com/discoursehosting/kb/discourse-private-replies-plugin
 # meta_topic_id: 146712
@@ -19,7 +19,7 @@ module ::DiscoursePrivateReplies
     return true if topic && user.id == topic.user.id
 
     # topic participants can see all
-    return true if SiteSetting.private_replies_participants_can_see_all && Post.where(topic_id: topic.id, user_id: user.id).count > 0
+    return true if SiteSetting.private_replies_participants_can_see_all && topic && Post.where(topic_id: topic.id, user_id: user.id).count > 0
 
     # specific trust level can see all
     min_trust_level = SiteSetting.private_replies_min_trust_level_to_see_all
