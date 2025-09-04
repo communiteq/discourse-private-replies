@@ -1,6 +1,6 @@
 # name: discourse-private-replies
 # about: Communiteq private replies plugin
-# version: 1.5.1
+# version: 1.5.2
 # authors: Communiteq
 # url: https://www.communiteq.com/discoursehosting/kb/discourse-private-replies-plugin
 # meta_topic_id: 146712
@@ -32,8 +32,10 @@ module ::DiscoursePrivateReplies
 
     # same primary group as topic owner can see all
     if SiteSetting.private_replies_topic_starter_primary_group_can_see_all && topic
-      groupids = Group.find(topic.user.primary_group_id).users.pluck(:id) if topic.user && !topic.user.anonymous?
-      return true if groupids.include? user.id
+      if topic.user && !topic.user.anonymous? && topic.user.primary_group_id
+        groupids = Group.find(topic.user.primary_group_id).users.pluck(:id)
+        return true if groupids.include? user.id
+      end
     end
 
     false
