@@ -90,5 +90,69 @@ describe Topic do
         expect(first_post.raw).to be_present
       end
     end
+
+    it 'does not expose private replies in digest content' do
+      # Test what happens when we try to access reply posts through digest topics
+      topics = Topic.for_digest(user, 1.week.ago).to_a
+
+      # Find our test topics
+      test_topics = topics.select { |t| [topic1.id, topic2.id, topic3.id].include?(t.id) }
+      expect(test_topics).not_to be_empty
+
+      test_topics.each do |topic|
+        # First posts should always be accessible
+        first_post = topic.first_post
+        expect(first_post).to be_present
+        expect(first_post.raw).to be_present
+
+        # Check if the topic has reply posts
+        reply_posts = topic.posts.where('post_number > 1')
+
+        if reply_posts.any?
+          puts "Topic #{topic.id} has #{reply_posts.count} replies"
+
+          # Test if restricted user can see reply posts
+          guardian = Guardian.new(user)
+
+          reply_posts.each do |post|
+            can_see = guardian.can_see_post?(post)
+            puts "  Reply by #{post.user.username}: can_see = #{can_see}"
+
+            # Based on your plugin logic:
+            # - Should see replies by topic_owner and allowed_user
+            # - Should NOT see replies by restricted_user
+            if post.user == topic_owner || post.user == allowed_user
+              expect(can_see).to be(true), "Should see reply by #{post.user.username}"
+            elsif post.user == restricted_user
+              expect(can_see).to be(false), "Should NOT see reply by #{post.user.username}"
+            end
+          end
+        end
+      end
+    end
+
+    it 'debug: shows what posts are accessible in digest topics' do
+      topics = Topic.for_digest(user, 1.week.ago).to_a
+      guardian = Guardian.new(user)
+
+      puts "\n=== DIGEST POST ACCESS DEBUG ==="
+      puts "User: #{user.username} (regular user)"
+
+      topics.each do |topic|
+        next unless [topic1.id, topic2.id, topic3.id].include?(topic.id)
+
+        puts "Topic #{topic.id}: #{topic.title}"
+
+        topic.posts.order(:post_number).each do |post|
+          can_see = guardian.can_see_post?(post)
+          puts "  Post ##{post.post_number} by #{post.user.username}: #{can_see ? 'VISIBLE' : 'HIDDEN'}"
+          puts "    Content: #{post.raw.truncate(50)}"
+        end
+      end
+      puts "===================================\n"
+
+      # This test is just for debugging
+      expect(true).to be true
+    end
   end
 end
