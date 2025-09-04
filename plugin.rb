@@ -1,6 +1,6 @@
 # name: discourse-private-replies
 # about: Communiteq private replies plugin
-# version: 1.5.2
+# version: 1.5.3
 # authors: Communiteq
 # url: https://www.communiteq.com/discoursehosting/kb/discourse-private-replies-plugin
 # meta_topic_id: 146712
@@ -161,6 +161,7 @@ after_initialize do
           next false unless protected_topics.include? post.topic_id # leave unprotected topics alone
           next false if userids.include? post.user_id               # show staff and own posts
           next false if post.user_id == post.topic.user_id          # show topic starter posts
+          next false if @guardian.user.id == post.topic.user_id     # show all posts to topic owner
           true
         end
       end
