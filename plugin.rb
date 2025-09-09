@@ -1,6 +1,6 @@
 # name: discourse-private-replies
 # about: Communiteq private replies plugin
-# version: 1.5.3
+# version: 1.5.4
 # authors: Communiteq
 # url: https://www.communiteq.com/discoursehosting/kb/discourse-private-replies-plugin
 # meta_topic_id: 146712
@@ -64,7 +64,7 @@ after_initialize do
       allowed = org_can_see_post?(post)
       return false unless allowed
 
-      if SiteSetting.private_replies_enabled && post.topic.custom_fields.keys.include?('private_replies') && post.topic.custom_fields['private_replies']
+      if SiteSetting.private_replies_enabled && post.topic&.custom_fields['private_replies']
         return true if DiscoursePrivateReplies.can_see_all_posts?(@user, post.topic)
 
         userids = DiscoursePrivateReplies.can_see_post_if_author_among(@user, post.topic)
@@ -80,7 +80,7 @@ after_initialize do
 
     def participants
       result = super
-      if SiteSetting.private_replies_enabled && @topic.custom_fields.keys.include?('private_replies') && @topic.custom_fields['private_replies']
+      if SiteSetting.private_replies_enabled && @topic&.custom_fields['private_replies']
         if !@user || !DiscoursePrivateReplies.can_see_all_posts?(@user, @topic)
           userids = DiscoursePrivateReplies.can_see_post_if_author_among(@user, @topic)
           result.select! { |key, _| userids.include?(key) }
@@ -93,7 +93,7 @@ after_initialize do
     def unfiltered_posts
       result = super
 
-      if SiteSetting.private_replies_enabled && @topic.custom_fields.keys.include?('private_replies') && @topic.custom_fields['private_replies']
+      if SiteSetting.private_replies_enabled && @topic&.custom_fields['private_replies']
         if !@user || !DiscoursePrivateReplies.can_see_all_posts?(@user, @topic)
           userids = DiscoursePrivateReplies.can_see_post_if_author_among(@user, @topic)
           result = result.where('(posts.post_number = 1 OR posts.user_id IN (?))', userids)
@@ -106,7 +106,7 @@ after_initialize do
     # so we need to filter that separately
     def filter_posts_by_ids(post_ids)
       @posts = super(post_ids)
-      if SiteSetting.private_replies_enabled && @topic.custom_fields.keys.include?('private_replies') && @topic.custom_fields['private_replies']
+      if SiteSetting.private_replies_enabled && @topic&.custom_fields['private_replies']
         if !@user || !DiscoursePrivateReplies.can_see_all_posts?(@user, @topic)
           userids = DiscoursePrivateReplies.can_see_post_if_author_among(@user, @topic)
           @posts = @posts.where('(posts.post_number = 1 OR posts.user_id IN (?))', userids)
@@ -118,7 +118,7 @@ after_initialize do
 
   module PatchTopicViewDetailsSerializer
     def last_poster
-      if SiteSetting.private_replies_enabled && object.topic.custom_fields.keys.include?('private_replies') && object.topic.custom_fields['private_replies']
+      if SiteSetting.private_replies_enabled && object.topic&.custom_fields['private_replies']
         if !scope.user || !DiscoursePrivateReplies.can_see_all_posts?(scope.user, object.topic)
           userids = DiscoursePrivateReplies.can_see_post_if_author_among(scope.user, object.topic)
           return object.topic.user unless !userids.include? object.topic.last_poster
@@ -131,7 +131,7 @@ after_initialize do
   module PatchTopicPostersSummary
     def initialize(topic, options = {})
       super
-      if SiteSetting.private_replies_enabled && @topic.custom_fields.keys.include?('private_replies') && @topic.custom_fields['private_replies']
+      if SiteSetting.private_replies_enabled && @topic&.custom_fields['private_replies']
         @filter_userids = DiscoursePrivateReplies.can_see_post_if_author_among(@user, @topic)
       else
         @filter_userids = nil
@@ -252,5 +252,7 @@ after_initialize do
 
   Site.preloaded_category_custom_fields << 'private_replies_default_enabled'
   Site.preloaded_category_custom_fields << 'private_replies_enabled'
+
+  add_preloaded_topic_list_custom_field("private_replies")
 end
 
