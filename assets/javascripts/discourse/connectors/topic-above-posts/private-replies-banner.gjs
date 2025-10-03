@@ -1,9 +1,7 @@
 import Component from '@glimmer/component';
-import { inject as service } from "@ember/service";
-import { get, hash } from "@ember/helper";
+import { service } from "@ember/service";
 import icon from "discourse/helpers/d-icon";
 import { i18n } from "discourse-i18n";
-import I18n from "discourse-i18n"
 
 export default class PrivateRepliesBanner extends Component {
   @service siteSettings;
@@ -13,13 +11,13 @@ export default class PrivateRepliesBanner extends Component {
   }
 
   get isUserViewLimited() {
-    return this.hasPrivateReplies && this.args.outletArgs.model.get("private_replies_limited")
+    return this.hasPrivateReplies && this.args.outletArgs.model.get("private_replies_limited");
   }
 
   get whoCanSee() {
-    return I18n.t("private_replies.topic_banner_line_2", {
-      group: this.siteSettings.private_replies_topic_starter_primary_group_can_see_all ? I18n.t("private_replies.topic_banner_line_2_group") : "",
-      participants: this.siteSettings.private_replies_participants_can_see_all ? I18n.t("private_replies.topic_banner_line_2_participants") : ""
+    return i18n("private_replies.topic_banner_line_2", {
+      group: this.siteSettings.private_replies_topic_starter_primary_group_can_see_all ? i18n("private_replies.topic_banner_line_2_group") : "",
+      participants: this.siteSettings.private_replies_participants_can_see_all ? i18n("private_replies.topic_banner_line_2_participants") : ""
     });
   }
 
