@@ -15,6 +15,9 @@ module ::DiscoursePrivateReplies
   def DiscoursePrivateReplies.can_see_all_posts?(user, topic)
     return false if user.nil? || user.anonymous? # anonymous users don't have the id method
 
+    # staff can see all
+    return true if user.staff?
+
     # topic owner can see all
     return true if topic && user.id == topic.user.id
 

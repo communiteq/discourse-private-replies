@@ -23,7 +23,8 @@ By pressing this button you have enabled the Private Replies feature for this to
 A banner will appear above the topic and the following happens:
 
 - people will only be able to see posts made by themself, by the topic owner, and by users in specific groups.
-- only the topic owner will be able to see all posts.
+- only the topic owner, staff members and users in `private_replies_groups_can_see_all` will be able to see all posts. If `private_replies_topic_starter_primary_group_can_see_all`
+and/or `private_replies_participants_can_see_all` are enabled then those can see the posts as well.
 
 ![banner](https://raw.githubusercontent.com/discoursehosting/discourse-private-replies/master/screenshots/banner.png)
 

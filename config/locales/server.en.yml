@@ -3,7 +3,7 @@ en:
     private_replies_enabled: "Enable the Private Replies plugin."
     private_replies_on_selected_categories_only: "Enable Private Replies only via Category - Security. If disabled, Private Replies can be used in all categories."
     private_replies_min_trust_level_to_see_all: "Minimum trust level required to see all private replies (5 to disable this)."
-    private_replies_groups_can_see_all: "Members of these groups can see all private replies."
+    private_replies_groups_can_see_all: "Members of these groups can see all private replies. Staff members can see private replies as well."
     private_replies_see_all_from_groups: "Users can see all private replies from members of these groups."
     private_replies_topic_starter_primary_group_can_see_all: "Whether the topic starter's primary group members can see all private replies."
     private_replies_participants_can_see_all: "Users who posted in the topic can see all private replies."

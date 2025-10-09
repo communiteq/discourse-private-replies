@@ -15,7 +15,7 @@ plugins:
     default: false
   private_replies_groups_can_see_all:
     client: false
-    default: "3"
+    default: ""
     type: group_list
   private_replies_see_all_from_groups:
     client: false
